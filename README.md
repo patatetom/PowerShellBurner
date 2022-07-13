@@ -1,6 +1,6 @@
 # PowerShellBurner
 
-[`burn.ps1`](burn.ps1) is a PowerShell script intended to "burn" a raw image file on a removable USB drive.
+[`burn.ps1`](burn.ps1) is a PowerShell script intended to « _burn_ » a raw image file on a removable USB drive.
 
 ```console
 > PowerShell -ExecutionPolicy ByPass -File \path\to\burn.ps1 -Image c:\path\to\raw\image.img
