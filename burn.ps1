@@ -1584,11 +1584,12 @@ AAAE6AMAAFBLBQYAAAAAAQABAFYAAACZ2AIAAAA=
 
 # main
 Write-Host
-If (Test-Path -PathType Leaf .\$Image) {
+If (Test-Path -PathType Leaf $Image) {
     Write-Host 'Calculating the SHA1 footprint...'
-    $Sha1 = Get-FileHash -Algorithm Sha1 .\$Image
-    If (Test-Path -PathType Leaf .\$Image'.sha1') {
-        $Ctrl = Select-String -Pattern $Image'$' .\$Image'.sha1'
+    $Sha1 = Get-FileHash -Algorithm Sha1 $Image
+    If (Test-Path -PathType Leaf $Image'.sha1') {
+        $Rexp = [Regex]::Escape((Get-Item $Image).Name)
+        $Ctrl = Select-String -Pattern $Rexp'$' $Image'.sha1'
         If ( $Sha1.Hash.ToLower() -Eq $Ctrl.Line.SubString(0,40).ToLower() ) {
             Write-Host -ForegroundColor Green $Sha1.Hash
         } Else {
