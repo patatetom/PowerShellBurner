@@ -9,3 +9,9 @@
 The image file will be requested by PowerShell if it is not provided on the command line.
 
 > [`burn.ps1`](burn.ps1) relies on [`dd-removable.exe`](http://www.chrysocome.net/dd) which is embedded directly in the script in the form of a string variable corresponding to a zip archive encoded in base 64.
+
+---
+
+See also :
+- [HDD Raw Copy](https://hddguru.com/software/HDD-Raw-Copy-Tool/)
+- [Win32 Disk Imager](https://sourceforge.net/projects/win32diskimager/)
