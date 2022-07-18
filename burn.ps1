@@ -1,4 +1,4 @@
-# PowerShell script intended to "burn" a raw image file on a removable USB drive
+# PowerShell script intended to "burn" a raw disk image file on a removable USB drive
 # the executable dd-0.6b3 (http://www.chrysocome.net/dd) is integrated in a compressed and base64 encoded form
 
 
@@ -1650,7 +1650,7 @@ If (Test-Path -PathType Leaf $Image) {
     }
     & $Dd --filter=removable bs=1M count=4 if=.\$Image of=$Ddisk 2>$null
     If ($LASTEXITCODE -Ne 0) {
-        Write-Host -ForegroundColor Red 'Error #2 during the initial overwrite of the USB DDrive !'
+        Write-Host -ForegroundColor Red 'Error #2 during the final overwrite of the USB DDrive !'
         Remove-Item -Recurse $TmpDir
         Break
     }
