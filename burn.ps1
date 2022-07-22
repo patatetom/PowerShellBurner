@@ -1603,6 +1603,7 @@ If (Test-Path -PathType Leaf "$Image") {
         if ($Ctrl) {
             If ($Sha1.Hash.ToLower() -Eq $Ctrl.Line.SubString(0,40).ToLower()) {
                 Write-Host -ForegroundColor Green $Sha1.Hash
+                Write-Host
             } Else {
                 Write-Host -ForegroundColor Red $Sha1.Hash
                 Write-Host -ForegroundColor Red 'The SHA1 footprint does not match !'
@@ -1634,44 +1635,44 @@ If (Test-Path -PathType Leaf "$Image") {
             Write-Host -NoNewLine -ForegroundColor Red 'Whitening of the selected USB drive...'
             [System.Media.SystemSounds]::Beep.Play()
             Clear-Disk -Number $Disk.Number -RemoveData -RemoveOEM
-            Update-Disk -Number $Disk.Number
             }
     } Else {
         Write-Host -ForegroundColor Red 'No USB drive detected !'
         Break
     }
     Write-Host
-    Write-Host -ForegroundColor Red 'Overwrite the selected USB drive...'
-    Wait
-    Update-Disk -Number $Disk.Number
-    "rescan" | diskpart | out-null
+    Start-Sleep 2
     $TmpDir = (New-TemporaryFolder).FullName
     Install-dd
     $Dd = "$TmpDir\dd-removable.exe"
     $Ddisk = (& "$Dd" --filter=removable --list 2>&1 | Select-String -Pattern ('^\\\\\?\\Device\\Harddisk' + $Disk.Number) | Out-String).Trim()
     If (!$Ddisk) {
-        Write-Host -ForegroundColor Red 'Error #0 when selecting the USB DDrive !'
+        Write-Host -ForegroundColor Red 'Error when selecting the USB DDrive !'
         Remove-Item -Recurse "$TmpDir"
         Break
     }
+    Write-Host -ForegroundColor Red 'Overwrite the selected USB drive...'
+    Wait
+    Write-Host 'Overwriting 1/2 (body)...'
     Write-Host -ForegroundColor Yellow 'This operation requires some time : please be patient...'
     $LASTEXITCODE = 0
     & "$Dd" --filter=removable bs=1M skip=4 seek=4 if=".\$Image" of="$Ddisk" 2>$null
     If ($LASTEXITCODE -Ne 0) {
-        Write-Host -ForegroundColor Red 'Error #1 during the initial overwrite of the USB DDrive !'
+        Write-Host -ForegroundColor Red 'Error during the initial overwrite of the USB DDrive !'
         Remove-Item -Recurse "$TmpDir"
         Break
     }
+    Write-Host 'Overwriting 2/2 (head)...'
     & "$Dd" --filter=removable bs=1M count=4 if=".\$Image" of="$Ddisk" 2>$null
     If ($LASTEXITCODE -Ne 0) {
-        Write-Host -ForegroundColor Red 'Error #2 during the final overwrite of the USB DDrive !'
+        Write-Host -ForegroundColor Red 'Error during the final overwrite of the USB DDrive !'
         Remove-Item -Recurse "$TmpDir"
         Break
     }
     Remove-Item -Recurse "$TmpDir"
-    Update-Disk -Number $Disk.Number
     Write-Host
-    Write-Host -ForegroundColor Green 'The selected USB drive can be removed.'
+    Start-Sleep 2
+    Write-Host -ForegroundColor Green 'The selected USB drive is overwrited and can be removed.'
     [System.Media.SystemSounds]::Beep.Play()
 } Else {
     Write-Host -ForegroundColor Red "File $Image not found !"
