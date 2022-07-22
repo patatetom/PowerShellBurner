@@ -1584,6 +1584,7 @@ AAAE6AMAAFBLBQYAAAAAAQABAFYAAACZ2AIAAAA=
 
 # main
 Write-Host
+$ProgressPreference = 'SilentlyContinue'
 If (Test-Path -PathType Leaf "$Image") {
     Write-Host 'Calculating the SHA1 footprint...'
     $Sha1 = Get-FileHash -Algorithm Sha1 "$Image"
