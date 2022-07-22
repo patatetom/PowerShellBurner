@@ -11,8 +11,8 @@ Param(
 # create a temporary folder and return its name
 function New-TemporaryFolder {
     $File = New-TemporaryFile
-    Remove-Item -Force $File
-    New-Item -ItemType Directory ($ENV:Temp + '\' + $File.Name)
+    Remove-Item -Force "$File"
+    New-Item -ItemType Directory "$ENV:Temp\$($File.Name)"
 }
 
 
@@ -1576,20 +1576,20 @@ bYH9/YpwZOQj6W9u31d6faO9In3SEXGPTWhc6g7k+s7H0HilO/CkXNpoQ+PnTc/vqhgat4hw6CEjf2/F
 koL4yn4hewY96R3+TVL6Cy4zNX3Havqsmr7Zmr65mr4navqOw//x+RdQSwECHgMUAAIACABusNg6PJabqk/YAgAAbAUAEAAYAAAAAAAAAAAApIEAAAAAZGQtcmVtb3ZhYmxlLmV4ZVVUBQADkIZCSnV4CwABBOgD
 AAAE6AMAAFBLBQYAAAAAAQABAFYAAACZ2AIAAAA=
 "@
-    $TmpFile = ($TmpDir + '\dd-removable.zip')
-    [IO.File]::WriteAllBytes($TmpFile, [Convert]::FromBase64String($Base64))
-    Expand-Archive -DestinationPath $TmpDir -Force $TmpFile
+    $TmpFile = "$TmpDir\dd-removable.zip"
+    [IO.File]::WriteAllBytes("$TmpFile", [Convert]::FromBase64String($Base64))
+    Expand-Archive -DestinationPath "$TmpDir" -Force "$TmpFile"
 }
 
 
 # main
 Write-Host
-If (Test-Path -PathType Leaf $Image) {
+If (Test-Path -PathType Leaf "$Image") {
     Write-Host 'Calculating the SHA1 footprint...'
-    $Sha1 = Get-FileHash -Algorithm Sha1 $Image
-    If (Test-Path -PathType Leaf $Image'.sha1') {
-        $Rexp = [Regex]::Escape((Get-Item $Image).Name)
-        $Ctrl = Select-String -Pattern $Rexp'$' $Image'.sha1'
+    $Sha1 = Get-FileHash -Algorithm Sha1 "$Image"
+    If (Test-Path -PathType Leaf "$Image.sha1") {
+        $Rexp = [Regex]::Escape((Get-Item "$Image").Name)
+        $Ctrl = Select-String -Pattern "$Rexp$" "$Image.sha1"
         If ( $Sha1.Hash.ToLower() -Eq $Ctrl.Line.SubString(0,40).ToLower() ) {
             Write-Host -ForegroundColor Green $Sha1.Hash
         } Else {
@@ -1598,8 +1598,8 @@ If (Test-Path -PathType Leaf $Image) {
             Break
         }
     } Else {
-        Write-Host -ForegroundColor Blue $Sha1.Hash
-        Write-Host -ForegroundColor Blue 'Check the SHA1 footprint before continuing.'
+        Write-Host -ForegroundColor Yellow $Sha1.Hash
+        Write-Host -ForegroundColor Yellow 'Check the SHA1 footprint before continuing.'
         Write-Host -NoNewLine '[Ctrl]-[C] to cancel ou [Enter] to continue... '
         $null = Read-Host
     }
@@ -1633,31 +1633,31 @@ If (Test-Path -PathType Leaf $Image) {
     "rescan" | diskpart | out-null
     $TmpDir = (New-TemporaryFolder).FullName
     Install-dd
-    $Dd = ($TmpDir + '\dd-removable.exe')
-    $Ddisk = (& $Dd --filter=removable --list 2>&1 | Select-String -Pattern ('^\\\\\?\\Device\\Harddisk' + $Disk.Number) | Out-String).Trim()
+    $Dd = "$TmpDir\dd-removable.exe"
+    $Ddisk = (& "$Dd" --filter=removable --list 2>&1 | Select-String -Pattern ('^\\\\\?\\Device\\Harddisk' + $Disk.Number) | Out-String).Trim()
     If (!$Ddisk) {
         Write-Host -ForegroundColor Red 'Error #0 when selecting the USB DDrive !'
-        Remove-Item -Recurse $TmpDir
+        Remove-Item -Recurse "$TmpDir"
         Break
     }
     Write-Host -ForegroundColor Yellow 'This operation requires some time : please be patient...'
     $LASTEXITCODE = 0
-    & $Dd --filter=removable bs=1M skip=4 seek=4 if=.\$Image of=$Ddisk 2>$null
+    & "$Dd" --filter=removable bs=1M skip=4 seek=4 if=".\$Image" of="$Ddisk" 2>$null
     If ($LASTEXITCODE -Ne 0) {
         Write-Host -ForegroundColor Red 'Error #1 during the initial overwrite of the USB DDrive !'
-        Remove-Item -Recurse $TmpDir
+        Remove-Item -Recurse "$TmpDir"
         Break
     }
-    & $Dd --filter=removable bs=1M count=4 if=.\$Image of=$Ddisk 2>$null
+    & "$Dd" --filter=removable bs=1M count=4 if=".\$Image" of="$Ddisk" 2>$null
     If ($LASTEXITCODE -Ne 0) {
         Write-Host -ForegroundColor Red 'Error #2 during the final overwrite of the USB DDrive !'
-        Remove-Item -Recurse $TmpDir
+        Remove-Item -Recurse "$TmpDir"
         Break
     }
-    Remove-Item -Recurse $TmpDir
+    Remove-Item -Recurse "$TmpDir"
     Update-Disk -Number $Disk.Number
     Write-Host
     Write-Host -ForegroundColor Green 'The selected USB drive can be removed.'
 } Else {
-    Write-Host -ForegroundColor Red ('File `' + $Image + '` not found !')
+    Write-Host -ForegroundColor Red "File $Image not found !"
 }
