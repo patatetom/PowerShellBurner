@@ -14,6 +14,8 @@ The disk image file will be automatically requested by PowerShell if it is not p
 > <br/><br/>
 > [`burn.ps1`](burn.ps1) relies on [`dd-removable.exe`](http://www.chrysocome.net/dd) which is embedded directly in the script in the form of a string variable corresponding to a zip archive encoded in base 64.
 
+![PSBurner](PSBurner.gif)
+
 ---
 
 See also :
