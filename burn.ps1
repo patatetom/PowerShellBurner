@@ -8,6 +8,15 @@ Param(
 )
 
 
+# wait for user
+function Wait($Message = '[Ctrl]-[C] to cancel ou [Enter] to continue... ') {
+    Write-Host -NoNewLine $Message
+    [System.Media.SystemSounds]::Beep.Play()
+    $null = Read-Host
+    Write-Host
+}
+
+
 # create a temporary folder and return its name
 function New-TemporaryFolder {
     $File = New-TemporaryFile
@@ -1603,17 +1612,14 @@ If (Test-Path -PathType Leaf "$Image") {
             Write-Host -ForegroundColor Yellow $Sha1.Hash
             Write-Host -ForegroundColor Yellow 'Verification file is not functionnal.'
             Write-Host -ForegroundColor Yellow 'Check the SHA1 footprint before continuing.'
-            Write-Host -NoNewLine '[Ctrl]-[C] to cancel ou [Enter] to continue... '
-            $null = Read-Host
+            Wait
         }
     } Else {
         Write-Host -ForegroundColor Yellow $Sha1.Hash
         Write-Host -ForegroundColor Yellow 'Verification file not found.'
         Write-Host -ForegroundColor Yellow 'Check the SHA1 footprint before continuing.'
-        Write-Host -NoNewLine '[Ctrl]-[C] to cancel ou [Enter] to continue... '
-        $null = Read-Host
+        Wait
     }
-    Write-Host
     $Disk = Get-Disk | Where-Object BusType -Eq 'USB' | Where-Object IsSystem -Eq $False
     If ($Disk)
     {
@@ -1624,10 +1630,9 @@ If (Test-Path -PathType Leaf "$Image") {
         } Else {
             ($Disk | Format-List -Property FriendlyName,Manufacturer,Model,@{Name = 'Size'; Expression = {$_.Size / 1GB}; FormatString = '{0:N0} GB'} | Out-String).Trim()
             Write-Host -ForegroundColor Red 'Check the selection before continuing.'
-            Write-Host -NoNewLine '[Ctrl]-[C] to cancel ou [Enter] to continue... '
-            $null = Read-Host
-            Write-Host
-            Write-Host -ForegroundColor Red 'Whitening of the selected USB drive...'
+            Wait
+            Write-Host -NoNewLine -ForegroundColor Red 'Whitening of the selected USB drive...'
+            [System.Media.SystemSounds]::Beep.Play()
             Clear-Disk -Number $Disk.Number -RemoveData -RemoveOEM
             Update-Disk -Number $Disk.Number
             }
@@ -1637,8 +1642,7 @@ If (Test-Path -PathType Leaf "$Image") {
     }
     Write-Host
     Write-Host -ForegroundColor Red 'Overwrite the selected USB drive...'
-    Write-Host -NoNewLine '[Ctrl]-[C] to cancel ou [Enter] to continue... '
-    $null = Read-Host
+    Wait
     Update-Disk -Number $Disk.Number
     "rescan" | diskpart | out-null
     $TmpDir = (New-TemporaryFolder).FullName
@@ -1668,6 +1672,7 @@ If (Test-Path -PathType Leaf "$Image") {
     Update-Disk -Number $Disk.Number
     Write-Host
     Write-Host -ForegroundColor Green 'The selected USB drive can be removed.'
+    [System.Media.SystemSounds]::Beep.Play()
 } Else {
     Write-Host -ForegroundColor Red "File $Image not found !"
 }
