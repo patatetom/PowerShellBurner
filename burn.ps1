@@ -1593,6 +1593,11 @@ AAAE6AMAAFBLBQYAAAAAAQABAFYAAACZ2AIAAAA=
 
 # main
 Write-Host
+$User = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+if (!$User.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    Write-Host -ForegroundColor Red 'Administrative privileges are required to run the generator !'
+    Break
+}
 $ProgressPreference = 'SilentlyContinue'
 If (Test-Path -PathType Leaf "$Image") {
     Write-Host 'Calculating the SHA1 footprint...'
@@ -1621,6 +1626,9 @@ If (Test-Path -PathType Leaf "$Image") {
         Write-Host -ForegroundColor Yellow 'Check the SHA1 footprint before continuing.'
         Wait
     }
+    Write-Host -ForegroundColor Yellow 'Plug in the USB disk to be burned.'
+    Write-Host -ForegroundColor 'This USB disk must be the only USB disk connected.'
+    Wait
     $Disk = Get-Disk | Where-Object BusType -Eq 'USB' | Where-Object IsSystem -Eq $False
     If ($Disk)
     {
